@@ -49,13 +49,13 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
-  version                = "~> 1.9"
+  version                = "1.10"
 }
 
 module "my-cluster" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = "my-cluster"
-  cluster_version = "1.17"
+  cluster_version = "1.18"
   subnets         = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
   vpc_id          = "vpc-1234556abcdef"
 
@@ -67,6 +67,7 @@ module "my-cluster" {
   ]
 }
 ```
+
 ## Conditional creation
 
 Sometimes you need to have a way to create EKS resources conditionally but Terraform does not allow to use `count` inside `module` block, so the solution is to specify argument `create_eks`.
@@ -86,9 +87,9 @@ data "aws_eks_cluster_auth" "cluster" {
 
 # In case of not creating the cluster, this will be an incompletely configured, unused provider, which poses no problem.
 provider "kubernetes" {
-  host                   = element(concat(data.aws_eks_cluster.cluster[*].endpoint, list("")), 0)
-  cluster_ca_certificate = base64decode(element(concat(data.aws_eks_cluster.cluster[*].certificate_authority.0.data, list("")), 0))
-  token                  = element(concat(data.aws_eks_cluster_auth.cluster[*].token, list("")), 0)
+  host                   = element(concat(data.aws_eks_cluster.cluster[*].endpoint, tolist([""])), 0)
+  cluster_ca_certificate = base64decode(element(concat(data.aws_eks_cluster.cluster[*].certificate_authority.0.data, tolist([""])), 0))
+  token                  = element(concat(data.aws_eks_cluster_auth.cluster[*].token, tolist([""])), 0)
   load_config_file       = false
   version                = "1.10"
 }
@@ -126,8 +127,8 @@ Full contributing [guidelines are covered here](https://github.com/terraform-aws
 
 ## Change log
 
-- The [changelog](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/CHANGELOG.md) captures all important release notes from v11.0.0
-- For older release notes, refer to [changelog.pre-v11.0.0.md](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/CHANGELOG.pre-v11.0.0.md)
+* The [changelog](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/CHANGELOG.md) captures all important release notes from v11.0.0
+* For older release notes, refer to [changelog.pre-v11.0.0.md](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/CHANGELOG.pre-v11.0.0.md)
 
 ## Authors
 
